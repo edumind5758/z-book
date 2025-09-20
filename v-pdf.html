@@ -138,55 +138,38 @@
     <script src="js/flipbook.webgl.js"></script>
 
     <script>
+        // API URL dari Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbwsqoRcZSfotRknxPqOwoQyuM2fUzR38fskQlBz_6BHYEUyDPdf3UXygF-G7jE4iAi0/exec";
+
         // Get file ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const fileId = urlParams.get('id');
-        
-        // Data buku untuk mendapatkan informasi buku
-        const books = [
-            {
-                id: "1ABC123XYZ",
-                title: "Pemrograman Web Modern",
-                author: "Ahmad Susanto"
-            },
-            {
-                id: "2DEF456ABC",
-                title: "Digital Marketing Strategy",
-                author: "Siti Nurhaliza"
-            },
-            {
-                id: "3GHI789DEF",
-                title: "Kisah Inspiratif",
-                author: "Budi Santoso"
-            },
-            {
-                id: "4JKL012GHI",
-                title: "Sejarah Peradaban",
-                author: "Dewi Lestari"
-            },
-            {
-                id: "5MNO345JKL",
-                title: "Matematika Dasar",
-                author: "Eko Prasetyo"
-            },
-            {
-                id: "6PQR678MNO",
-                title: "Machine Learning",
-                author: "Faisal Rahman"
+
+        // Load book data from Google Spreadsheet
+        async function loadBookData() {
+            try {
+                const response = await fetch(`${API_URL}?action=getBooks`);
+                const books = await response.json();
+                
+                const bookInfo = books.find(book => book.id === fileId);
+                return bookInfo;
+            } catch (error) {
+                console.error("Error loading book data:", error);
+                return null;
             }
-        ];
-        
+        }
+
         if (!fileId) {
             showError("Parameter file ID tidak ditemukan. Silakan kembali ke halaman utama dan coba lagi.");
         } else {
             // Construct PDF URL from Google Drive file ID
             const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             
-            // Get book info
-            const bookInfo = books.find(book => book.id === fileId);
-            
             // Initialize flipbook
-            $(document).ready(function() {
+            $(document).ready(async function() {
+                // Get book info
+                const bookInfo = await loadBookData();
+                
                 // Remove loading indicator
                 $('.loading').remove();
                 
@@ -246,11 +229,11 @@
                 }
             });
         }
-        
+
         function goBack() {
             window.location.href = "index.html";
         }
-        
+
         function showError(message) {
             const errorHtml = `
                 <div class="error-message">
