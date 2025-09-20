@@ -3,221 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-Book - Flipbook Interaktif</title>
+    <title>Z-Book - Digital Library</title>
     <link rel="stylesheet" href="css/flipbook.style.css">
     <link rel="stylesheet" href="css/font-awesome.css">
     <link rel="stylesheet" href="css/footer.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
-            color: #fff;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            margin: 5px 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
         }
         
         .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            flex: 1;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
         
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
         }
         
-        .form-group {
-            margin-bottom: 25px;
+        .book-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
         }
         
-        label {
-            display: block;
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .book-cover {
+            height: 350px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.7));
+        }
+        
+        .book-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .book-info {
+            padding: 15px;
+        }
+        
+        .book-author {
+            color: #666;
             margin-bottom: 10px;
-            font-weight: 600;
         }
         
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            box-sizing: border-box;
-        }
-        
-        .btn {
+        .read-btn {
             display: block;
             width: 100%;
-            padding: 15px;
+            padding: 10px;
             background: #3498db;
             color: white;
+            text-align: center;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 5px;
+            font-weight: bold;
             cursor: pointer;
             transition: background 0.3s;
         }
         
-        .btn:hover {
+        .read-btn:hover {
             background: #2980b9;
         }
         
-        .instructions {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .instructions h3 {
-            margin-top: 0;
-            color: #f1c40f;
-        }
-        
-        .instructions ol {
-            padding-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-        }
-        
-        .preview-container {
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .preview-book {
-            display: inline-block;
-            width: 200px;
-            height: 280px;
-            background: linear-gradient(45deg, #3498db, #2c3e50);
-            border-radius: 5px 15px 15px 5px;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
-            transform: perspective(1000px) rotateY(-15deg);
-            transition: transform 0.5s;
-        }
-        
-        .preview-book:hover {
-            transform: perspective(1000px) rotateY(0deg);
-        }
-        
-        .preview-book::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 30px;
-            height: 100%;
-            background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
-            border-radius: 5px 0 0 5px;
-        }
-        
-        .preview-title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            text-align: center;
-            font-weight: bold;
+        .admin-login {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
             color: white;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            padding: 10px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .admin-login:hover {
+            background: rgba(0,0,0,0.9);
         }
         
         footer {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 30px 0;
             text-align: center;
-            margin-top: auto;
+        }
+        
+        .search-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .search-box {
+            width: 50%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .search-btn {
+            padding: 15px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            margin-left: -10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .search-btn:hover {
+            background: #2980b9;
+        }
+        
+        .category-filter {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .category-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-btn.active, .category-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1><i class="fa fa-book"></i> Z-Book</h1>
+        <p>Digital Library Platform</p>
+    </div>
+    
     <div class="container">
-        <h1><i class="fa fa-book"></i> Z-Book - Flipbook Interaktif</h1>
-        
-        <div class="form-group">
-            <label for="driveLink">Masukkan Link Google Drive PDF:</label>
-            <input type="text" id="driveLink" placeholder="https://drive.google.com/file/d/...">
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Cari buku favorit Anda...">
+            <button class="search-btn"><i class="fa fa-search"></i></button>
         </div>
         
-        <button id="submitBtn" class="btn"><i class="fa fa-book-open"></i> Buka Flipbook</button>
-        
-        <div class="preview-container">
-            <div class="preview-book">
-                <div class="preview-title">Preview Flipbook</div>
-            </div>
+        <div class="category-filter">
+            <button class="category-btn active">Semua</button>
+            <button class="category-btn">Fiksi</button>
+            <button class="category-btn">Non-Fiksi</button>
+            <button class="category-btn">Pendidikan</button>
+            <button class="category-btn">Teknologi</button>
+            <button class="category-btn">Bisnis</button>
         </div>
         
-        <div class="instructions">
-            <h3><i class="fa fa-info-circle"></i> Cara Menggunakan:</h3>
-            <ol>
-                <li>Buka file PDF di Google Drive</li>
-                <li>Klik kanan pada file dan pilih "Bagikan"</li>
-                <li>Pastikan setelan akses adalah "Siapa pun yang memiliki tautan"</li>
-                <li>Salin link dan tempel di kolom di atas</li>
-                <li>Klik tombol "Buka Flipbook" untuk membuka</li>
-            </ol>
+        <div class="books-grid" id="booksGrid">
+            <!-- Buku akan dimuat dari JavaScript -->
         </div>
     </div>
     
+    <div class="admin-login" id="adminLoginBtn">
+        <i class="fa fa-lock"></i> Admin
+    </div>
+    
     <footer>
-        <p>&copy; 2023 Z-Book - Flipbook Interaktif | Dikembangkan oleh <a href="#">Tim Z-Book</a></p>
+        <p>&copy; 2023 Z-Book - Digital Library Platform | All rights reserved</p>
     </footer>
 
     <script>
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            const driveLink = document.getElementById('driveLink').value.trim();
-            
-            if (!driveLink) {
-                alert('Silakan masukkan link Google Drive terlebih dahulu!');
-                return;
+        // Data buku yang disimpan di Google Drive
+        // Format: {id, title, author, category, cover}
+        const books = [
+            {
+                id: "1ABC123XYZ",
+                title: "Pemrograman Web Modern",
+                author: "Ahmad Susanto",
+                category: "Teknologi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech1.jpg"
+            },
+            {
+                id: "2DEF456ABC",
+                title: "Digital Marketing Strategy",
+                author: "Siti Nurhaliza",
+                category: "Bisnis",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/business1.jpg"
+            },
+            {
+                id: "3GHI789DEF",
+                title: "Kisah Inspiratif",
+                author: "Budi Santoso",
+                category: "Fiksi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/fiction1.jpg"
+            },
+            {
+                id: "4JKL012GHI",
+                title: "Sejarah Peradaban",
+                author: "Dewi Lestari",
+                category: "Non-Fiksi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/history1.jpg"
+            },
+            {
+                id: "5MNO345JKL",
+                title: "Matematika Dasar",
+                author: "Eko Prasetyo",
+                category: "Pendidikan",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/education1.jpg"
+            },
+            {
+                id: "6PQR678MNO",
+                title: "Machine Learning",
+                author: "Faisal Rahman",
+                category: "Teknologi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech2.jpg"
             }
+        ];
+        
+        // Fungsi untuk menampilkan buku
+        function displayBooks(booksToShow) {
+            const booksGrid = document.getElementById('booksGrid');
+            booksGrid.innerHTML = '';
             
-            // Validasi format link Google Drive
-            const drivePattern = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
-            if (!drivePattern.test(driveLink)) {
-                alert('Format link Google Drive tidak valid! Contoh yang benar: https://drive.google.com/file/d/FILE_ID');
-                return;
-            }
-            
-            // Ekstrak file ID dari link
-            const match = driveLink.match(drivePattern);
-            const fileId = match[1];
-            
-            // Redirect ke halaman v-pdf.html dengan parameter file ID
-            window.location.href = `v-pdf.html?id=${fileId}`;
+            booksToShow.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.innerHTML = `
+                    <div class="book-cover" style="background-image: url('${book.cover}')">
+                        <div class="book-title">${book.title}</div>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-author">Penulis: ${book.author}</div>
+                        <button class="read-btn" onclick="openBook('${book.id}')"><i class="fa fa-book-open"></i> Baca</button>
+                    </div>
+                `;
+                booksGrid.appendChild(bookCard);
+            });
+        }
+        
+        // Fungsi untuk membuka buku
+        function openBook(bookId) {
+            window.location.href = `v-pdf.html?id=${bookId}`;
+        }
+        
+        // Fungsi untuk filter kategori
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active class
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter books
+                const category = this.textContent;
+                if (category === 'Semua') {
+                    displayBooks(books);
+                } else {
+                    const filteredBooks = books.filter(book => book.category === category);
+                    displayBooks(filteredBooks);
+                }
+            });
         });
         
-        // Auto-convert jika user paste link sharing
-        document.getElementById('driveLink').addEventListener('paste', function() {
-            setTimeout(() => {
-                const input = this.value;
-                // Jika user paste link dengan format sharing, konversi ke format file
-                if (input.includes('https://drive.google.com/open?id=')) {
-                    const fileId = input.split('id=')[1];
-                    if (fileId) {
-                        this.value = `https://drive.google.com/file/d/${fileId}`;
-                    }
-                }
-            }, 100);
+        // Fungsi pencarian
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+            const filteredBooks = books.filter(book => 
+                book.title.toLowerCase().includes(searchTerm) || 
+                book.author.toLowerCase().includes(searchTerm)
+            );
+            displayBooks(filteredBooks);
         });
+        
+        // Admin login
+        document.getElementById('adminLoginBtn').addEventListener('click', function() {
+            const password = prompt('Masukkan password admin:');
+            if (password === 'admin123') { // Ganti dengan password yang lebih aman
+                window.location.href = 'admin.html';
+            } else if (password !== null) {
+                alert('Password salah!');
+            }
+        });
+        
+        // Initial display
+        displayBooks(books);
     </script>
 </body>
 </html>
