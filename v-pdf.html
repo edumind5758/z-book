@@ -124,6 +124,19 @@
       display: none !important;
     }
     
+    /* Sembunyikan tombol download pojok kanan atas */
+    .flipbook-btn-download-pages {
+      display: none !important;
+    }
+    
+    /* Sembunyikan semua tombol yang berhubungan dengan download */
+    .flipbook-btn[title*="Download"], 
+    .flipbook-btn[title*="download"],
+    .flipbook-tool-bar .fa-download,
+    .flipbook-tool-bar .fa-download {
+      display: none !important;
+    }
+    
     /* Mencegah dialog print browser */
     @media print {
       body * {
@@ -253,7 +266,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
   
-  <!-- Script untuk mencegah print -->
+  <!-- Script untuk mencegah print dan download -->
   <script>
     // Mencegah print dengan keyboard shortcut (Ctrl+P atau Cmd+P)
     document.addEventListener('keydown', function(e) {
@@ -281,6 +294,28 @@
       
       window.onbeforeprint = beforePrint;
     })();
+    
+    // Menyembunyikan tombol download yang mungkin muncul setelah flipbook dimuat
+    $(document).ready(function() {
+      // Tunggu flipbook selesai dimuat
+      setTimeout(function() {
+        // Sembunyikan semua tombol download yang mungkin muncul
+        $('.flipbook-btn-download').hide();
+        $('.flipbook-btn-download-pages').hide();
+        $('.flipbook-tool-bar .fa-download').parent().hide();
+        
+        // Cari dan sembunyikan tombol download berdasarkan atribut title
+        $('.flipbook-btn[title*="Download"]').hide();
+        $('.flipbook-btn[title*="download"]').hide();
+        
+        // Cari dan sembunyikan tombol download berdasarkan icon
+        $('.fa-download').each(function() {
+          if ($(this).parent().hasClass('flipbook-btn')) {
+            $(this).parent().hide();
+          }
+        });
+      }, 1000);
+    });
   </script>
 
 </body>
