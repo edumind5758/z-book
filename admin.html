@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Book - Admin Panel</title>
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .admin-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input[type="text"], input[type="url"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .books-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .books-table th, .books-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .books-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .books-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .edit-btn {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .notification {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .back-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fa fa-lock"></i> Admin Panel</h1>
+    </div>
+    
+    <div class="container">
+        <a href="index.html" class="back-btn"><i class="fa fa-arrow-left"></i> Kembali ke Beranda</a>
+        
+        <div class="admin-panel">
+            <div class="notification" id="notification"></div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="add-book">Tambah Buku</div>
+                <div class="tab" data-tab="manage-books">Kelola Buku</div>
+                <div class="tab" data-tab="settings">Pengaturan</div>
+            </div>
+            
+            <div class="tab-content active" id="add-book">
+                <h2>Tambah Buku Baru</h2>
+                <form id="addBookForm">
+                    <div class="form-group">
+                        <label for="bookTitle">Judul Buku</label>
+                        <input type="text" id="bookTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookAuthor">Penulis</label>
+                        <input type="text" id="bookAuthor" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookCategory">Kategori</label>
+                        <select id="bookCategory" required>
+                            <option value="">Pilih Kategori</option>
+                            <option value="Fiksi">Fiksi</option>
+                            <option value="Non-Fiksi">Non-Fiksi</option>
+                            <option value="Pendidikan">Pendidikan</option>
+                            <option value="Teknologi">Teknologi</option>
+                            <option value="Bisnis">Bisnis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookCover">URL Cover Buku</label>
+                        <input type="url" id="bookCover" placeholder="https://example.com/cover.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="driveLink">Link Google Drive PDF</label>
+                        <input type="url" id="driveLink" placeholder="https://drive.google.com/file/d/..." required>
+                    </div>
+                    
+                    <button type="submit" class="btn"><i class="fa fa-plus"></i> Tambah Buku</button>
+                </form>
+            </div>
+            
+            <div class="tab-content" id="manage-books">
+                <h2>Kelola Buku</h2>
+                <table class="books-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Judul</th>
+                            <th>Penulis</th>
+                            <th>Kategori</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksTableBody">
+                        <!-- Data buku akan dimuat dari JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="settings">
+                <h2>Pengaturan</h2>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label for="adminPassword">Password Admin</label>
+                        <input type="password" id="adminPassword" value="admin123">
+                        <small>Biarkan kosong jika tidak ingin mengubah password</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="siteTitle">Judul Situs</label>
+                        <input type="text" id="siteTitle" value="Z-Book - Digital Library">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="booksPerPage">Buku per Halaman</label>
+                        <select id="booksPerPage">
+                            <option value="6">6</option>
+                            <option value="12">12</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn"><i class="fa fa-save"></i> Simpan Pengaturan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data buku yang disimpan di Google Drive
+        let books = [
+            {
+                id: "1ABC123XYZ",
+                title: "Pemrograman Web Modern",
+                author: "Ahmad Susanto",
+                category: "Teknologi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech1.jpg"
+            },
+            {
+                id: "2DEF456ABC",
+                title: "Digital Marketing Strategy",
+                author: "Siti Nurhaliza",
+                category: "Bisnis",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/business1.jpg"
+            },
+            {
+                id: "3GHI789DEF",
+                title: "Kisah Inspiratif",
+                author: "Budi Santoso",
+                category: "Fiksi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/fiction1.jpg"
+            },
+            {
+                id: "4JKL012GHI",
+                title: "Sejarah Peradaban",
+                author: "Dewi Lestari",
+                category: "Non-Fiksi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/history1.jpg"
+            },
+            {
+                id: "5MNO345JKL",
+                title: "Matematika Dasar",
+                author: "Eko Prasetyo",
+                category: "Pendidikan",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/education1.jpg"
+            },
+            {
+                id: "6PQR678MNO",
+                title: "Machine Learning",
+                author: "Faisal Rahman",
+                category: "Teknologi",
+                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech2.jpg"
+            }
+        ];
+        
+        // Password admin
+        let adminPassword = "admin123";
+        
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Fungsi untuk generate ID unik
+        function generateId() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 9; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+        
+        // Fungsi untuk menampilkan buku di tabel
+        function displayBooksInTable() {
+            const tableBody = document.getElementById('booksTableBody');
+            tableBody.innerHTML = '';
+            
+            books.forEach(book => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${book.id}</td>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.category}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editBook('${book.id}')"><i class="fa fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteBook('${book.id}')"><i class="fa fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Fungsi untuk menambah buku
+        document.getElementById('addBookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const category = document.getElementById('bookCategory').value;
+            const cover = document.getElementById('bookCover').value;
+            const driveLink = document.getElementById('driveLink').value;
+            
+            // Ekstrak file ID dari link Google Drive
+            const drivePattern = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
+            const match = driveLink.match(drivePattern);
+            
+            if (!match) {
+                showNotification('Format link Google Drive tidak valid!', 'error');
+                return;
+            }
+            
+            const fileId = match[1];
+            
+            // Generate cover URL jika tidak disediakan
+            let coverUrl = cover;
+            if (!coverUrl) {
+                coverUrl = `https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/${category.toLowerCase()}1.jpg`;
+            }
+            
+            // Tambah buku baru
+            const newBook = {
+                id: fileId,
+                title: title,
+                author: author,
+                category: category,
+                cover: coverUrl
+            };
+            
+            books.push(newBook);
+            
+            // Reset form
+            this.reset();
+            
+            // Tampilkan notifikasi
+            showNotification('Buku berhasil ditambahkan!', 'success');
+            
+            // Update tabel
+            displayBooksInTable();
+        });
+        
+        // Fungsi untuk mengedit buku
+        function editBook(id) {
+            const book = books.find(b => b.id === id);
+            if (!book) return;
+            
+            // Isi form dengan data buku
+            document.getElementById('bookTitle').value = book.title;
+            document.getElementById('bookAuthor').value = book.author;
+            document.getElementById('bookCategory').value = book.category;
+            document.getElementById('bookCover').value = book.cover;
+            document.getElementById('driveLink').value = `https://drive.google.com/file/d/${book.id}`;
+            
+            // Switch to add book tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('.tab[data-tab="add-book"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('add-book').classList.add('active');
+            
+            // Hapus buku dari array (akan ditambahkan kembali saat form disubmit)
+            books = books.filter(b => b.id !== id);
+            
+            showNotification('Silakan edit data buku dan klik "Tambah Buku"', 'success');
+        }
+        
+        // Fungsi untuk menghapus buku
+        function deleteBook(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus buku ini?')) {
+                books = books.filter(b => b.id !== id);
+                displayBooksInTable();
+                showNotification('Buku berhasil dihapus!', 'success');
+            }
+        }
+        
+        // Fungsi untuk menyimpan pengaturan
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('adminPassword').value;
+            if (newPassword) {
+                adminPassword = newPassword;
+            }
+            
+            // Di implementasi nyata, pengaturan akan disimpan ke database atau file
+            showNotification('Pengaturan berhasil disimpan!', 'success');
+        });
+        
+        // Tab navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update active tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                
+                // Load books table if manage books tab is active
+                if (tabId === 'manage-books') {
+                    displayBooksInTable();
+                }
+            });
+        });
+        
+        // Cek password admin
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const auth = urlParams.get('auth');
+            
+            if (auth !== 'admin123') {
+                const password = prompt('Masukkan password admin:');
+                if (password !== adminPassword) {
+                    alert('Password salah!');
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
