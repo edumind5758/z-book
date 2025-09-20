@@ -288,55 +288,12 @@
     </div>
 
     <script>
-        // Data buku yang disimpan di Google Drive
-        let books = [
-            {
-                id: "1ABC123XYZ",
-                title: "Pemrograman Web Modern",
-                author: "Ahmad Susanto",
-                category: "Teknologi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech1.jpg"
-            },
-            {
-                id: "2DEF456ABC",
-                title: "Digital Marketing Strategy",
-                author: "Siti Nurhaliza",
-                category: "Bisnis",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/business1.jpg"
-            },
-            {
-                id: "3GHI789DEF",
-                title: "Kisah Inspiratif",
-                author: "Budi Santoso",
-                category: "Fiksi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/fiction1.jpg"
-            },
-            {
-                id: "4JKL012GHI",
-                title: "Sejarah Peradaban",
-                author: "Dewi Lestari",
-                category: "Non-Fiksi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/history1.jpg"
-            },
-            {
-                id: "5MNO345JKL",
-                title: "Matematika Dasar",
-                author: "Eko Prasetyo",
-                category: "Pendidikan",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/education1.jpg"
-            },
-            {
-                id: "6PQR678MNO",
-                title: "Machine Learning",
-                author: "Faisal Rahman",
-                category: "Teknologi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech2.jpg"
-            }
-        ];
-        
+        // API URL dari Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbwsqoRcZSfotRknxPqOwoQyuM2fUzR38fskQlBz_6BHYEUyDPdf3UXygF-G7jE4iAi0/exec";
+
         // Password admin
         let adminPassword = "admin123";
-        
+
         // Fungsi untuk menampilkan notifikasi
         function showNotification(message, type) {
             const notification = document.getElementById('notification');
@@ -348,7 +305,7 @@
                 notification.style.display = 'none';
             }, 3000);
         }
-        
+
         // Fungsi untuk generate ID unik
         function generateId() {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -358,9 +315,23 @@
             }
             return result;
         }
-        
+
+        // Fungsi untuk memuat buku dari Google Spreadsheet
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API_URL}?action=getBooks`);
+                const books = await response.json();
+                displayBooksInTable(books);
+                return books;
+            } catch (error) {
+                console.error("Error loading books:", error);
+                showNotification("Gagal memuat data buku. Silakan coba lagi nanti.", "error");
+                return [];
+            }
+        }
+
         // Fungsi untuk menampilkan buku di tabel
-        function displayBooksInTable() {
+        function displayBooksInTable(books) {
             const tableBody = document.getElementById('booksTableBody');
             tableBody.innerHTML = '';
             
@@ -379,9 +350,9 @@
                 tableBody.appendChild(row);
             });
         }
-        
+
         // Fungsi untuk menambah buku
-        document.getElementById('addBookForm').addEventListener('submit', function(e) {
+        document.getElementById('addBookForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const title = document.getElementById('bookTitle').value;
@@ -407,61 +378,80 @@
                 coverUrl = `https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/${category.toLowerCase()}1.jpg`;
             }
             
-            // Tambah buku baru
-            const newBook = {
-                id: fileId,
-                title: title,
-                author: author,
-                category: category,
-                cover: coverUrl
-            };
-            
-            books.push(newBook);
-            
-            // Reset form
-            this.reset();
-            
-            // Tampilkan notifikasi
-            showNotification('Buku berhasil ditambahkan!', 'success');
-            
-            // Update tabel
-            displayBooksInTable();
+            try {
+                // Tambah buku baru ke Google Spreadsheet
+                const response = await fetch(`${API_URL}?action=addBook&id=${fileId}&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&category=${encodeURIComponent(category)}&cover=${encodeURIComponent(coverUrl)}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reset form
+                    this.reset();
+                    
+                    // Tampilkan notifikasi
+                    showNotification('Buku berhasil ditambahkan!', 'success');
+                    
+                    // Update tabel
+                    loadBooks();
+                } else {
+                    showNotification('Gagal menambah buku. Silakan coba lagi.', 'error');
+                }
+            } catch (error) {
+                console.error("Error adding book:", error);
+                showNotification('Gagal menambah buku. Silakan coba lagi.', 'error');
+            }
         });
-        
+
         // Fungsi untuk mengedit buku
-        function editBook(id) {
-            const book = books.find(b => b.id === id);
-            if (!book) return;
-            
-            // Isi form dengan data buku
-            document.getElementById('bookTitle').value = book.title;
-            document.getElementById('bookAuthor').value = book.author;
-            document.getElementById('bookCategory').value = book.category;
-            document.getElementById('bookCover').value = book.cover;
-            document.getElementById('driveLink').value = `https://drive.google.com/file/d/${book.id}`;
-            
-            // Switch to add book tab
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector('.tab[data-tab="add-book"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('add-book').classList.add('active');
-            
-            // Hapus buku dari array (akan ditambahkan kembali saat form disubmit)
-            books = books.filter(b => b.id !== id);
-            
-            showNotification('Silakan edit data buku dan klik "Tambah Buku"', 'success');
-        }
-        
-        // Fungsi untuk menghapus buku
-        function deleteBook(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus buku ini?')) {
-                books = books.filter(b => b.id !== id);
-                displayBooksInTable();
-                showNotification('Buku berhasil dihapus!', 'success');
+        async function editBook(id) {
+            try {
+                // Load all books
+                const response = await fetch(`${API_URL}?action=getBooks`);
+                const books = await response.json();
+                
+                const book = books.find(b => b.id === id);
+                if (!book) return;
+                
+                // Isi form dengan data buku
+                document.getElementById('bookTitle').value = book.title;
+                document.getElementById('bookAuthor').value = book.author;
+                document.getElementById('bookCategory').value = book.category;
+                document.getElementById('bookCover').value = book.cover;
+                document.getElementById('driveLink').value = `https://drive.google.com/file/d/${book.id}`;
+                
+                // Switch to add book tab
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelector('.tab[data-tab="add-book"]').classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById('add-book').classList.add('active');
+                
+                showNotification('Silakan edit data buku dan klik "Tambah Buku"', 'success');
+            } catch (error) {
+                console.error("Error editing book:", error);
+                showNotification('Gagal memuat data buku. Silakan coba lagi.', 'error');
             }
         }
-        
+
+        // Fungsi untuk menghapus buku
+        async function deleteBook(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus buku ini?')) {
+                try {
+                    const response = await fetch(`${API_URL}?action=deleteBook&id=${id}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification('Buku berhasil dihapus!', 'success');
+                        loadBooks();
+                    } else {
+                        showNotification('Gagal menghapus buku. Silakan coba lagi.', 'error');
+                    }
+                } catch (error) {
+                    console.error("Error deleting book:", error);
+                    showNotification('Gagal menghapus buku. Silakan coba lagi.', 'error');
+                }
+            }
+        }
+
         // Fungsi untuk menyimpan pengaturan
         document.getElementById('settingsForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -474,7 +464,7 @@
             // Di implementasi nyata, pengaturan akan disimpan ke database atau file
             showNotification('Pengaturan berhasil disimpan!', 'success');
         });
-        
+
         // Tab navigation
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -490,11 +480,11 @@
                 
                 // Load books table if manage books tab is active
                 if (tabId === 'manage-books') {
-                    displayBooksInTable();
+                    loadBooks();
                 }
             });
         });
-        
+
         // Cek password admin
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
