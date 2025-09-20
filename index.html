@@ -229,53 +229,21 @@
     </footer>
 
     <script>
-        // Data buku yang disimpan di Google Drive
-        // Format: {id, title, author, category, cover}
-        const books = [
-            {
-                id: "1ABC123XYZ",
-                title: "Pemrograman Web Modern",
-                author: "Ahmad Susanto",
-                category: "Teknologi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech1.jpg"
-            },
-            {
-                id: "2DEF456ABC",
-                title: "Digital Marketing Strategy",
-                author: "Siti Nurhaliza",
-                category: "Bisnis",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/business1.jpg"
-            },
-            {
-                id: "3GHI789DEF",
-                title: "Kisah Inspiratif",
-                author: "Budi Santoso",
-                category: "Fiksi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/fiction1.jpg"
-            },
-            {
-                id: "4JKL012GHI",
-                title: "Sejarah Peradaban",
-                author: "Dewi Lestari",
-                category: "Non-Fiksi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/history1.jpg"
-            },
-            {
-                id: "5MNO345JKL",
-                title: "Matematika Dasar",
-                author: "Eko Prasetyo",
-                category: "Pendidikan",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/education1.jpg"
-            },
-            {
-                id: "6PQR678MNO",
-                title: "Machine Learning",
-                author: "Faisal Rahman",
-                category: "Teknologi",
-                cover: "https://raw.githubusercontent.com/edumind5758/z-book/main/images/book2/tech2.jpg"
+        // API URL dari Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbwsqoRcZSfotRknxPqOwoQyuM2fUzR38fskQlBz_6BHYEUyDPdf3UXygF-G7jE4iAi0/exec";
+
+        // Fungsi untuk memuat buku dari Google Spreadsheet
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API_URL}?action=getBooks`);
+                const books = await response.json();
+                displayBooks(books);
+            } catch (error) {
+                console.error("Error loading books:", error);
+                showError("Gagal memuat data buku. Silakan coba lagi nanti.");
             }
-        ];
-        
+        }
+
         // Fungsi untuk menampilkan buku
         function displayBooks(booksToShow) {
             const booksGrid = document.getElementById('booksGrid');
@@ -296,40 +264,58 @@
                 booksGrid.appendChild(bookCard);
             });
         }
-        
+
         // Fungsi untuk membuka buku
         function openBook(bookId) {
             window.location.href = `v-pdf.html?id=${bookId}`;
         }
-        
+
         // Fungsi untuk filter kategori
         document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', async function() {
                 // Update active class
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Filter books
-                const category = this.textContent;
-                if (category === 'Semua') {
-                    displayBooks(books);
-                } else {
-                    const filteredBooks = books.filter(book => book.category === category);
-                    displayBooks(filteredBooks);
+                // Load all books first
+                try {
+                    const response = await fetch(`${API_URL}?action=getBooks`);
+                    const books = await response.json();
+                    
+                    // Filter books
+                    const category = this.textContent;
+                    if (category === 'Semua') {
+                        displayBooks(books);
+                    } else {
+                        const filteredBooks = books.filter(book => book.category === category);
+                        displayBooks(filteredBooks);
+                    }
+                } catch (error) {
+                    console.error("Error filtering books:", error);
+                    showError("Gagal memfilter data buku. Silakan coba lagi nanti.");
                 }
             });
         });
-        
+
         // Fungsi pencarian
-        document.querySelector('.search-btn').addEventListener('click', function() {
+        document.querySelector('.search-btn').addEventListener('click', async function() {
             const searchTerm = document.querySelector('.search-box').value.toLowerCase();
-            const filteredBooks = books.filter(book => 
-                book.title.toLowerCase().includes(searchTerm) || 
-                book.author.toLowerCase().includes(searchTerm)
-            );
-            displayBooks(filteredBooks);
+            
+            try {
+                const response = await fetch(`${API_URL}?action=getBooks`);
+                const books = await response.json();
+                
+                const filteredBooks = books.filter(book => 
+                    book.title.toLowerCase().includes(searchTerm) || 
+                    book.author.toLowerCase().includes(searchTerm)
+                );
+                displayBooks(filteredBooks);
+            } catch (error) {
+                console.error("Error searching books:", error);
+                showError("Gagal mencari buku. Silakan coba lagi nanti.");
+            }
         });
-        
+
         // Admin login
         document.getElementById('adminLoginBtn').addEventListener('click', function() {
             const password = prompt('Masukkan password admin:');
@@ -339,9 +325,19 @@
                 alert('Password salah!');
             }
         });
-        
-        // Initial display
-        displayBooks(books);
+
+        // Fungsi untuk menampilkan pesan error
+        function showError(message) {
+            const booksGrid = document.getElementById('booksGrid');
+            booksGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 20px; background: #ffebee; border-radius: 10px; color: #d32f2f;">
+                    <i class="fa fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+
+        // Load books when page loads
+        document.addEventListener('DOMContentLoaded', loadBooks);
     </script>
 </body>
 </html>
