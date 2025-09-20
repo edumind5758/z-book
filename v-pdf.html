@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
+<head>
   <link rel="shortcut icon" href="images/KPK_Logo.svg">
   <title>View PDF</title>
   <!-- Required meta tags -->
@@ -22,7 +22,6 @@
   <script src="js/flipbook.min.js"></script>
 
   <script type="text/javascript">
-
       $(document).ready(function () {
           $("#read").flipBook({
             //Layout Setting
@@ -36,13 +35,7 @@
               hideOnMobile:true
             },
             btnDownloadPages : {
-              enabled: true,
-              title: "Download pages",
-              icon: "fa-download",
-              icon2: "file_download",
-              url: "images/pdf.rar",
-              name: "allPages.zip",
-              hideOnMobile:false
+              enabled: false  // Tombol download dinonaktifkan
             },
             btnColor:'rgb(255,120,60)',
             sideBtnColor:'rgb(255,120,60)',
@@ -85,7 +78,22 @@
   <style>
     body {
       background-color: #f6f6f6;
+      -webkit-user-select: none; /* Safari */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+/Edge */
+      user-select: none; /* Standard */
     }
+    
+    /* Mencegah klik kanan */
+    body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
     #author {
       font-size: 15px;
       font-weight: bold;
@@ -104,11 +112,16 @@
       margin-top: 20px;
       font-weight: lighter;
     }
+    
+    /* Sembunyikan tombol download di flipbook */
+    .flipbook-btn-download {
+      display: none !important;
+    }
   </style>
 
-  </head>
+</head>
 
-  <body>
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
 
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
@@ -137,7 +150,7 @@
             <!-- Button -->
             <div class="button">
               <a id="read" class="btn btn-primary mt-2 text-white">Baca PDF <i class="fas fa-book-reader fa-lg"></i></a>
-              <a href="pdf/pdf.pdf" class="btn btn-primary mt-2 text-white" download>Unduh PDF <i class="fas fa-download fa-lg"></i></a>
+              <!-- Tombol unduh dihapus -->
             </div>
             <!-- Description -->
             <p id="description">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi quo velit consequuntur, iste, impedit dignissimos vitae nesciunt et commodi quos quis iusto est iure tenetur eum amet quas temporibus esse praesentium incidunt sequi ratione. Fuga ab quas itaque enim, molestiae, totam, necessitatibus magni dolores eligendi obcaecati libero omnis iste. Facilis.</p>
@@ -206,6 +219,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
-  </body>
+</body>
 
 </html>
